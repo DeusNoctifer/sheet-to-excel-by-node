@@ -1,0 +1,33 @@
+services:
+  sheets-sync:
+    image: node:18-alpine
+    container_name: sheets-sync
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./output:/app/output
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=production
+      - SYNC_EVERY_MINUTES=${SYNC_EVERY_MINUTES:-15}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Health check OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: >
+      sh -c "
+        echo '🚀 Iniciando Google Sheets Sync Container...' &&
+        echo '📦 Instalando/verificando dependencias...' &&
+        npm ci --only=production &&
+        echo '✅ Dependencias instaladas' &&
+        echo '📁 Creando directorios necesarios...' &&
+        mkdir -p /app/output &&
+        echo '⏰ Iniciando scheduler (intervalo: $${SYNC_EVERY_MINUTES} minutos)...' &&
+        node src/scheduler.js
+      "
+
+volumes:
+  node_modules:

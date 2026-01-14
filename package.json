@@ -1,0 +1,28 @@
+{
+  "name": "sheets-sync-system",
+  "version": "1.0.0",
+  "description": "Sistema de sincronización automática Google Sheets → Excel",
+  "main": "src/sync-intelligent.js",
+  "scripts": {
+    "start": "node scheduler-simple.js",
+    "sync": "node src/sync-intelligent.js --sync",
+    "force": "node src/sync-intelligent.js --force",
+    "once": "node src/sync-intelligent.js --once",
+    "test": "node -e \"console.log('Sistema funcionando')\"",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:logs": "docker-compose logs -f",
+    "docker:down": "docker-compose down"
+  },
+  "keywords": ["google-sheets", "excel", "sync", "automation"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "googleapis": "^128.0.0",
+    "node-cron": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

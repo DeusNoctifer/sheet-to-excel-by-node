@@ -1,6 +1,12 @@
-# 📊 Google Sheets to Excel Sync
+# Google Sheets to Excel Sync <img src="https://www.svgrepo.com/show/223056/sheets-sheet.svg"  width="25" height="25"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" width="25" height="25"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" width="25" height="25">
 
 Sistema automatizado para sincronizar Google Sheets a Excel usando Node.js y Docker. Monitorea cambios en tiempo real y descarga actualizaciones automáticamente.
+
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-27%2B-blue?logo=docker&logoColor=white)
+![Google Sheets API](https://img.shields.io/badge/Google_Sheets_API-v4-4285F4?logo=google&logoColor=white)
+![Google Drive API](https://img.shields.io/badge/Google_Drive_API-v3-4285F4?logo=google&logoColor=white)
+![node-cron](https://img.shields.io/badge/node--cron-3.0.3-orange?logo=npm&logoColor=white)
 
 ## 🎯 ¿Qué hace?
 

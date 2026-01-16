@@ -18,11 +18,12 @@ Este sistema:
 - **Maneja todas las hojas** de tu Google Sheet automáticamente
 - **Genera logs detallados** para monitorear el proceso
 - **Corre en Docker** sin necesidad de instalar Node.js localmente
+- **Configurable** - elige dónde guardar archivos y cómo nombrarlos
 
 ### 📁 Archivos generados
 
-- `output/current_sheet.xlsx` - La última versión descargada de tu Google Sheet
-- `output/last_content.json` - Estado anterior para detectar cambios
+- `current_sheet.xlsx` - La última versión descargada de tu Google Sheet
+- `last_content.json` - Estado anterior para detectar cambios
 
 ---
 
@@ -40,6 +41,7 @@ Este sistema:
 
 Crea un archivo `.env` en la raíz del proyecto:
 
+**En Linux/Mac:**
 ```env
 # ID de tu Google Sheet (de la URL)
 SPREADSHEET_ID=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p
@@ -50,11 +52,49 @@ GOOGLE_SERVICE_ACCOUNT_EMAIL=google-sheets-sync@my-project.iam.gserviceaccount.c
 # Clave privada (reemplazar \n con saltos de línea)
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQE....\n-----END PRIVATE KEY-----\n"
 
-# Intervalo de sincronización en minutos (opcional, default: 15)
+# Intervalo de sincronización en minutos (optional, default: 15)
 SYNC_EVERY_MINUTES=15
+
+# Carpeta de salida (ruta absoluta o relativa)
+OUTPUT_DIR=/home/usuario/datos/sheets
+OUTPUT_FILE_NAME=mi_hoja_datos.xlsx
 ```
 
-### 3. Obtener credenciales de Google Cloud
+**En Windows:**
+```env
+# ID de tu Google Sheet (de la URL)
+SPREADSHEET_ID=1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p
+
+# Credenciales de Google Cloud Service Account
+GOOGLE_SERVICE_ACCOUNT_EMAIL=google-sheets-sync@my-project.iam.gserviceaccount.com
+
+# Clave privada (reemplazar \n con saltos de línea)
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQE....\n-----END PRIVATE KEY-----\n"
+
+# Intervalo de sincronización en minutos (optional, default: 15)
+SYNC_EVERY_MINUTES=15
+
+# Carpeta de salida (usa \ o / ambas funcionan)
+OUTPUT_DIR=C:\Users\Usuario\Documents\sheets
+OUTPUT_FILE_NAME=mi_hoja_datos.xlsx
+
+# Alternativas válidas:
+# OUTPUT_DIR=D:/datos/excel
+# OUTPUT_DIR=\\servidor\compartido\sheets
+```
+
+### 3. Variables de entorno
+
+| Variable | Descripción | Default | Ejemplo |
+|----------|-------------|---------|---------|
+| `SPREADSHEET_ID` | ID de tu Google Sheet | - | `1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p` |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Email de Service Account | - | `google-sheets-sync@my-project.iam.gserviceaccount.com` |
+| `GOOGLE_PRIVATE_KEY` | Clave privada (formato JSON) | - | `-----BEGIN PRIVATE KEY-----\n...` |
+| `SYNC_EVERY_MINUTES` | Intervalo de sincronización | `15` | `5`, `30`, `60` |
+| `OUTPUT_DIR` | Carpeta donde guardar archivos | `./output` | `/home/user/datos` o `C:\data` |
+| `OUTPUT_FILE_NAME` | Nombre del archivo Excel | `current_sheet.xlsx` | `datos_excel.xlsx` |
+
+### 4. Obtener credenciales de Google Cloud
 
 1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
 2. Crea un nuevo proyecto
@@ -67,7 +107,7 @@ SYNC_EVERY_MINUTES=15
 5. Comparte tu Google Sheet con el email de la Service Account
 6. Copia el `client_email` y `private_key` a tu `.env`
 
-### 4. Obtener el ID de tu Google Sheet
+### 5. Obtener el ID de tu Google Sheet
 
 En la URL de tu Google Sheet:
 ```
@@ -96,7 +136,7 @@ docker-compose run --rm sheets-sync node -e "
 ### Ejecutar scheduler automático (recomendado)
 
 ```bash
-# Iniciar el servicio en background (se ejecuta cada 15 min)
+# Iniciar el servicio en background (se ejecuta cada N minutos)
 docker-compose up -d
 
 # Ver logs en vivo
@@ -135,6 +175,27 @@ Luego reinicia:
 docker-compose restart sheets-sync
 ```
 
+### Cambiar ubicación de salida
+
+En el archivo `.env`:
+
+**Linux/Mac:**
+```env
+OUTPUT_DIR=/ruta/externa/sheets
+OUTPUT_FILE_NAME=datos_$(date +%Y%m%d).xlsx
+```
+
+**Windows:**
+```env
+OUTPUT_DIR=D:\datos\excel
+OUTPUT_FILE_NAME=datos_excel.xlsx
+```
+
+Luego reinicia:
+```bash
+docker-compose restart sheets-sync
+```
+
 ---
 
 ## 📊 Estructura del proyecto
@@ -144,9 +205,9 @@ sheet-to-excel-by-node/
 ├── src/
 │   ├── sync-intelligent.js    # Lógica principal de sincronización
 │   └── scheduler.js            # Programación con cron
-├── output/
+├── output/                     # Carpeta por defecto (configurable)
 │   ├── current_sheet.xlsx      # Descarga más reciente
-│   └── last_content.json       # Estado anterior (para detectar cambios)
+│   └── last_content.json       # Estado anterior
 ├── docker-compose.yml          # Configuración de Docker
 ├── package.json                # Dependencias Node.js
 ├── .env                        # Credenciales (git-ignored)
@@ -207,6 +268,10 @@ El sistema detecta automáticamente:
 - **Causa**: `SPREADSHEET_ID` incorrecto o Sheet no compartida con Service Account
 - **Solución**: Verificar ID y compartir Sheet con `GOOGLE_SERVICE_ACCOUNT_EMAIL`
 
+### ❌ "Los archivos no se guardan en OUTPUT_DIR"
+- **Causa**: Docker no tiene acceso a la carpeta externa
+- **Solución**: Verificar que el path en `OUTPUT_DIR` es correcto y accesible
+
 ### ❌ El contenedor no inicia
 ```bash
 # Ver logs de error
@@ -225,6 +290,7 @@ docker-compose up -d
 - ✨ Automatizar reportes desde Google Sheets
 - ✨ Backup automático de Google Sheets a XLSX
 - ✨ Integración con procesos que consumen Excel
+- ✨ Guardar descargas en ubicación personalizada (USB, servidor, nube)
 
 ---
 
@@ -244,11 +310,14 @@ docker-compose run --rm sheets-sync sh
 docker-compose down -v
 
 # Ver variables de entorno en el contenedor
-docker-compose run --rm sheets-sync env | grep SYNC
+docker-compose run --rm sheets-sync env | grep -E "OUTPUT|SYNC"
+
+# Verificar si los archivos se generaron
+docker-compose run --rm sheets-sync ls -la /app/output
 ```
 
 ---
 
 ## 📄 Licencia
 
- GPL-3.0 - Libre para usar y modificar
+GPL-3.0 - Libre para usar y modificar

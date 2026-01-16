@@ -6,8 +6,8 @@ const path = require('path');
 class SheetSync {
   constructor() {
     this.spreadsheetId = process.env.SPREADSHEET_ID;
-    this.outputDir = './output';
-    this.baseFileName = 'current_sheet.xlsx';
+    this.outputDir = process.env.OUTPUT_DIR || './output';
+    this.baseFileName = process.env.OUTPUT_FILE_NAME || 'current_sheet.xlsx';
     this.lastContentFile = path.join(this.outputDir, 'last_content.json');
     
     this.ensureDirectories();
